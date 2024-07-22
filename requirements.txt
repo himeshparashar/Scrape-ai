@@ -1,0 +1,11 @@
+fastapi
+selenium
+webdriver_manager
+bs4
+langchain_chroma
+langchain_text_splitters
+langchain_openai
+langchain_community
+python-dotenv
+qdrant-client
+langchain_qdrant
