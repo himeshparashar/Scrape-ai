@@ -1,7 +1,6 @@
 
 from fastapi import HTTPException
 from langchain_chroma import Chroma
-from langchain_qdrant import QdrantVectorStore
 from langchain_community.vectorstores import Chroma
 import os
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -13,6 +12,7 @@ import nltk
 import string
 from app.v1.Schema.chroma_req_schema import AdditionalInfo
 from dotenv import load_dotenv
+import uuid
 
 load_dotenv()
 
@@ -23,23 +23,42 @@ class LangChainVectorStore:
     db_dir = os.path.join(ROOT_DIR, "chroma_db")
     open_embeddings = OpenAIEmbeddings(api_key=os.environ.get("OPENAI_API_KEY"), model="text-embedding-ada-002",
                                        max_retries=2)
+
+    @classmethod
+    async def uu_ids(self, docs : list) ->list:
+        # Create a list of ids for each document based on the content
+        ids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, doc.page_content)) for doc in docs]
+        return ids
+
+    @classmethod
+    async def unique_ids(self, docs : list) ->list:
+        # Create a list of unique ids for each document based on the content
+        ids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, doc.page_content)) for doc in docs]
+        unique_ids = list(set(ids))
+        return unique_ids
+
+    @classmethod
+    async def unique_docs(self, docs : list) ->list:
+        # Ensure that only docs that correspond to unique ids are kept and that only one of the duplicate ids is kept
+        ids = await self.uu_ids(docs=docs)
+        seen_ids = set()
+        unique_docs = [doc for doc, id in zip(docs, ids) if id not in seen_ids and (seen_ids.add(id) or True)]
+        return unique_docs
     
     @classmethod
     async def run_db(self, docs : list, collection_name : str, metadata:dict):
         try:
-            open_embeddings = OpenAIEmbeddings(api_key=os.environ.get('OPENAI_API_KEY'), model="text-embedding-ada-002", max_retries=2) 
-
-            
-            url = os.environ.get("QDRANT_URL")
-            qdrant = QdrantVectorStore.from_documents(
-                docs,
-                open_embeddings,
-                url=url,
-                prefer_grpc=True,
-                api_key=os.environ.get('QDRANT_API_KEY'),
+            unique_docs = await self.unique_docs(docs=docs)
+            unique_ids = await self.unique_ids(docs=docs)
+            db = Chroma.from_documents(
+                unique_docs,
+                self.open_embeddings,
+                ids=unique_ids,
+                persist_directory=self.db_dir,
                 collection_name=collection_name,
+                collection_metadata=metadata
             )
-
+            db.persist()
             return True
         except Exception as e:
             error_message = f"{str(e)}"

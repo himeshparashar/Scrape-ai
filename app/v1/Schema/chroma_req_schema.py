@@ -9,7 +9,7 @@ class langchain_llama_llm(BaseModel):
     prompt: str
     email_part : str = "email_body"
     max_token: int = 500
-    llm: str
+    llm: str = "openai"
     collection_name : str
     voice_and_tone : str = None
     additional_info : Optional[AdditionalInfo] = None
