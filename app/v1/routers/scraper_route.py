@@ -1,24 +1,12 @@
-import os
-from fastapi import FastAPI, HTTPException, Request, APIRouter
-from langchain_openai import OpenAI
 
-from app.v1.Schema.scraper_req_schema import CreateCollectionRequest, WebScrapperReq
+from fastapi import HTTPException, APIRouter
+
+from app.v1.Schema.scraper_req_schema import WebScrapperReq
 from app.v1.helpers.langchian_vector_store import LangChainVectorStore
 from app.v1.services.web_scraper import WebScrapper
-from app.v1.helpers.text_loader import text_loader, text_splitter
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-# from qdrant_client import QdrantClient, VectorParams, Distance, PointStruct
+from app.v1.helpers.text_loader import text_loader
 
 knowledgebase_router = APIRouter(prefix="/knowledgebase")
-
-# client = QdrantClient(
-#     url=os.getenv("QDRANT_URL"),
-#     api_key=os.getenv("QDRANT_API_KEY"),
-#     timeout=500
-# )
-
-# openai_client = OpenAI()
 
 
 @knowledgebase_router.post("/urls")
@@ -43,6 +31,8 @@ async def web_knowledge_base(req : WebScrapperReq):
                 metadata=metadata, 
 
             )
+            print("**********************")
+            print(is_added)
             if is_added == True:
                 return {
                     "status": 201,
@@ -61,43 +51,3 @@ async def web_knowledge_base(req : WebScrapperReq):
         print(e)
         error_message = str(e)
         raise HTTPException(status_code=400, detail=error_message)
-    
-
-
-
-# @knowledgebase_router.post("/create_collection")
-# async def create_item(request: CreateCollectionRequest):
-#     try:
-#         if client.collection_exists(request.collection_name):
-#             return f"collection with name '{request.collection_name}' is already present"
-#         else:
-
-#             text_splitter = RecursiveCharacterTextSplitter(chunk_size=800,
-#                                                            chunk_overlap=400)
-#             texts = text_splitter.split_text(texts)
-
-#             result = openai_client.embeddings.create(input=texts, model="text-embedding-3-large")
-
-#             client.create_collection(
-#                 request.collection_name,
-#                 vectors_config=VectorParams(
-#                     size=3072,
-#                     distance=Distance.COSINE,
-#                 ),
-#             )
-
-#             points = [
-#                 PointStruct(
-#                     id=idx,
-#                     vector=data.embedding,
-#                     payload={"text": text},
-#                 )
-#                 for idx, (data, text) in enumerate(zip(result.data, texts))
-#             ]
-
-#             client.upsert(request.collection_name, points)
-
-#             return {"message": f"Collection with name {request.collection_name} created successfully"}
-
-#     except Exception as e:
-#         return {"message": f"Error while creating collection. The error is: {e}"}

@@ -51,7 +51,8 @@ class WebScrapper:
             soup = BeautifulSoup(self.driver.page_source, 'html.parser')
 
             paragraphs = soup.find_all('p')
-            headings = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+            headings = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'span', 'caption', 'li', 'ul', 'ol', 'pre', 'strong', 'b',
+                                      'i', 'small', 'big'])
             # divs = soup.find_all('div')
 
             extracted_text = "\n".join(filter(lambda x: x.strip(), [p.get_text() for p in paragraphs] + [h.get_text() for h in headings] ))
