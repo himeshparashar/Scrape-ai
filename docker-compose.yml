@@ -1,0 +1,16 @@
+version: '3.6'
+services:
+  aye_camp:
+    volumes:
+      - "./:/application"
+    build: .
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    networks:
+      - vector_db_network
+
+networks:
+  vector_db_network:
+    driver: bridge
