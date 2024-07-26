@@ -2,9 +2,8 @@ import streamlit as st
 import requests
 
 # Set up the FastAPI endpoints
-# BASE_URL = "https://nsdc.ayecampaigns.com"  # Replace with your FastAPI server URL
+BASE_URL = "https://nsdc.ayecampaigns.com"  # Replace with your FastAPI server URL
 # BASE_URL = "http://localhost:8002"  # Replace with your FastAPI server URL
-BASE_URL = "https://7c44-152-59-6-207.ngrok-free.app"  # Replace with your FastAPI server URL
 
 # Function to fetch collection names
 def fetch_collection_names():
