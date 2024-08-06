@@ -104,36 +104,23 @@ def Chatbot_API():
                 data = result.get("data")  # Extract only the "data" field
                 # st.write(data)
                 cleaned_string = data.strip('```json').strip('```').strip()
-                data1 = json.loads(cleaned_string)
-                if data1:
-                    # Display the answer
-                    st.header("Answer")
-                    st.write(data1.get("answer", "No answer provided"))
+                try:
+                    data1 = json.loads(cleaned_string)
+                    if data1:
+                        # Display the answer
+                        st.header("Answer")
+                        st.write(data1.get("answer", "No answer provided"))
 
-                    # Display reference links if available
-                    urls = data1.get("urls", [])
-                    if urls:
-                        st.header("Reference Links")
+                        # Display reference links if available
+                        urls = data1.get("urls", [])
+                        if urls:
+                            st.header("Reference Links")
 
-                        for i in range(0, len(urls), 2):
-                            col1, col2 = st.columns(2)
+                            for i in range(0, len(urls), 2):
+                                col1, col2 = st.columns(2)
 
-                            with col1:
-                                url = urls[i]
-                                title = url.get("title", "Untitled")
-                                nsdc_url = url.get("nsdc_url", "")
-                                youtube_url = url.get("youtube_url", "")
-
-                                if nsdc_url or youtube_url:
-                                    st.subheader(title)
-                                    if nsdc_url:
-                                        st.markdown(f"[NSDC Link]({nsdc_url})")
-                                    if youtube_url:
-                                        st.video(youtube_url)
-
-                            if i + 1 < len(urls):
-                                with col2:
-                                    url = urls[i + 1]
+                                with col1:
+                                    url = urls[i]
                                     title = url.get("title", "Untitled")
                                     nsdc_url = url.get("nsdc_url", "")
                                     youtube_url = url.get("youtube_url", "")
@@ -145,6 +132,21 @@ def Chatbot_API():
                                         if youtube_url:
                                             st.video(youtube_url)
 
+                                if i + 1 < len(urls):
+                                    with col2:
+                                        url = urls[i + 1]
+                                        title = url.get("title", "Untitled")
+                                        nsdc_url = url.get("nsdc_url", "")
+                                        youtube_url = url.get("youtube_url", "")
+
+                                        if nsdc_url or youtube_url:
+                                            st.subheader(title)
+                                            if nsdc_url:
+                                                st.markdown(f"[NSDC Link]({nsdc_url})")
+                                            if youtube_url:
+                                                st.video(youtube_url)
+                except Exception:
+                    st.write(data)
                 # st.markdown(data,unsafe_allow_html=True)
             else: # If the status code is not 200
                 st.error(result.get("message"))
