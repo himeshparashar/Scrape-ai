@@ -12,3 +12,5 @@ openai
 python-dotenv
 nltk
 chromadb
+streamlit
+streamlit_router
